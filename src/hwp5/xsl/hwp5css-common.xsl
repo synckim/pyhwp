@@ -1,5 +1,15 @@
 <?xml version="1.0"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <!-- Style/ParaShape/CharShape/FaceName records all live under the single
+       DocInfo/IdMappings element, so collect each list once and index into it.
+       The previous //X[$i] form rescanned the whole document for every paragraph
+       and text run, which is O(n^2) and takes 10+ minutes on documents with very
+       large tables. Since every X has the same parent, //X[$i] == $g-X[$i]. -->
+  <xsl:variable name="g-Style" select="//Style" />
+  <xsl:variable name="g-ParaShape" select="//ParaShape" />
+  <xsl:variable name="g-CharShape" select="//CharShape" />
+  <xsl:variable name="g-FaceName" select="//FaceName" />
+
     <xsl:output method="text" media-type="text/css" encoding="utf-8" indent="no" />
 
     <xsl:variable name="facenamebaseko" select="1" />
@@ -33,7 +43,7 @@
         </xsl:variable>
         <xsl:if test="@kind = 'paragraph'">
             <xsl:variable name="parashape_pos" select="@parashape-id + 1" />
-            <xsl:variable name="parashape" select="//ParaShape[$parashape_pos]" />
+            <xsl:variable name="parashape" select="$g-ParaShape[$parashape_pos]" />
             <xsl:call-template name="css-rule">
                 <xsl:with-param name="selector" select="$paragraph-selector" />
                 <xsl:with-param name="declarations">
@@ -57,7 +67,7 @@
         <xsl:value-of select="@charshape-id" />
         <xsl:text>*/&#10;</xsl:text>
         <xsl:variable name="charshape_pos" select="number(@charshape-id) + 1" />
-        <xsl:variable name="charshape" select="//CharShape[$charshape_pos]" />
+        <xsl:variable name="charshape" select="$g-CharShape[$charshape_pos]" />
         <xsl:for-each select="$charshape">
             <xsl:call-template name="charshape-css-rule">
                 <xsl:with-param name="charshape-selector" select="$spans-selector" />
@@ -203,7 +213,7 @@
 
     <xsl:template match="Paragraph|Style" mode="add-class-bullet">
         <xsl:variable name="parashape_pos" select="number(@parashape-id) + 1" />
-        <xsl:variable name="parashape" select="//ParaShape[$parashape_pos]" />
+        <xsl:variable name="parashape" select="$g-ParaShape[$parashape_pos]" />
         <xsl:variable name="bullet_id" select="$parashape/@numbering-bullet-id" />
         <xsl:if test="$bullet_id &gt; 0">
             <xsl:text> </xsl:text>
@@ -319,8 +329,8 @@
                 <xsl:call-template name="css-declaration">
                     <xsl:with-param name="property">font-family</xsl:with-param>
                     <xsl:with-param name="value">
-                        <xsl:apply-templates select="//FaceName[$facename-idx]" mode="font-family-value" />
-                        <xsl:apply-templates select="//FaceName[$facename-idx]" mode="font-family-generic-value" />
+                        <xsl:apply-templates select="$g-FaceName[$facename-idx]" mode="font-family-value" />
+                        <xsl:apply-templates select="$g-FaceName[$facename-idx]" mode="font-family-generic-value" />
                     </xsl:with-param>
                 </xsl:call-template>
                 <xsl:call-template name="css-declaration">

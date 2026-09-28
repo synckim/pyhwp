@@ -107,11 +107,11 @@
   <xsl:template match="Paragraph">
     <xsl:element name="p">
       <xsl:variable name="styleid" select="@style-id"/>
-      <xsl:variable name="style" select="//Style[number($styleid)+1]" />
+      <xsl:variable name="style" select="$g-Style[number($styleid)+1]" />
       <xsl:variable name="stylename" select="$style/@name" />
       <xsl:variable name="stylencname" select="translate($stylename, ' ', '-')" />
       <xsl:variable name="parashape_pos" select="number(@parashape-id) + 1" />
-      <xsl:variable name="parashape" select="//ParaShape[$parashape_pos]" />
+      <xsl:variable name="parashape" select="$g-ParaShape[$parashape_pos]" />
       <xsl:attribute name="class">
         <xsl:value-of select="$stylencname" />
         <xsl:choose>
@@ -139,7 +139,7 @@
   <xsl:template match="Paragraph/LineSeg/Text">
     <xsl:element name="span">
       <xsl:variable name="styleid" select="../../@style-id"/>
-      <xsl:variable name="style" select="//Style[number($styleid)+1]" />
+      <xsl:variable name="style" select="$g-Style[number($styleid)+1]" />
       <xsl:variable name="stylename" select="$style/@name" />
       <xsl:variable name="stylencname" select="translate($stylename, ' ', '-')" />
       <xsl:attribute name="class">
@@ -437,7 +437,7 @@
   <xsl:template match="TableControl|GShapeObjectControl" mode="extendedcontrol-hpos">
     <xsl:variable name="paragraph" select="../.." />
     <xsl:variable name="parashape_pos" select="number($paragraph/@parashape-id) + 1" />
-    <xsl:variable name="parashape" select="//ParaShape[$parashape_pos]" />
+    <xsl:variable name="parashape" select="$g-ParaShape[$parashape_pos]" />
     <xsl:variable name="columnset" select="$paragraph/.." />
     <xsl:variable name="section" select="$columnset/.." />
     <xsl:variable name="pagedef" select="$section/PageDef" />
